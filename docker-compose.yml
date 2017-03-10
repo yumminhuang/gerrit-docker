@@ -1,0 +1,30 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.4-alpine
+    environment:
+      - POSTGRES_USER=gerrit2
+      - POSTGRES_PASSWORD=gerrit
+      - POSTGRES_DB=reviewdb
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres:/var/lib/postgres
+
+  gerrit:
+    image: openfrontier/gerrit:2.11.10
+    environment:
+      - AUTH_TYPE=OpenID
+      - DATABASE_TYPE=postgresql
+      - DB_PORT_5432_TCP_ADDR=db
+      - DB_ENV_POSTGRES_USER=gerrit2
+      - DB_ENV_POSTGRES_PASSWORD=gerrit
+      - DB_ENV_POSTGRES_DB=reviewdb
+    ports:
+      - 80:8080
+      - 29418:29418
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./review_site:/var/gerrit/review_site
+    depends_on:
+      - db
